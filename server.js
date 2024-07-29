@@ -6,6 +6,7 @@ const session = require('express-session')
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
+const MongoStore = require("connect-mongo");
 
 // Set the port from environment variable or default to 3000
 const port = process.env.PORT ? process.env.PORT : "3000";
@@ -25,14 +26,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride("_method"));
 // Morgan for logging HTTP requests
 app.use(morgan('dev'));
-// Session Secret middleware
+// Session-Secret and MongoStore middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+    }),
   })
 );
+
 
 app.get("/", (req, res) => {
   res.render("index.ejs", {
